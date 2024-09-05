@@ -70,7 +70,6 @@ def count_running_EC2 ():
     instances = ec2_resource.instances.filter(Filters=filters)
     # Count the instances
     count = len(list(instances))
-    print(count)
     return count
 
 def list_ec2():

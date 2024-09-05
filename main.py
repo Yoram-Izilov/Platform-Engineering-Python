@@ -6,26 +6,47 @@ parser = argparse.ArgumentParser(description='Creates AWS resources.' ,formatter
 parser.add_argument('--resource',
                      type=str,
                      required=True,
-                     help='Specify the AWS resource (EC2, S3, ROUTE53)')
-parser.add_argument('--action',
-                     type=str,
-                     default='create',
-                     help='create, update, delete or list the resource (default creates)')
-parser.add_argument('--os',
-                    type=str,
-                    default='ubuntu',
-                    help='Specify the AWS AMI [ubuntu, amazon] (default ubuntu)')
-parser.add_argument('--machine',
-                    type=str,
-                    default='t2',
-                    help='values t3 or t2 (t3.nano or t2.micro)')
+                     choices=['ec2', 's3', 'route53'],
+                     help='Specify the AWS resource (EC2, s3, Route53)')
 
-# Parse the arguments
-args = parser.parse_args()
+# Subparsers for each resource type
+subparsers = parser.add_subparsers(dest='resource', required=True)
 
-if args.resource.upper() == "EC2":
-    print("You have selected EC2 as the resource.")
-    ec2_handler(args.action, args.os, args.machine)
-else:
-    print(f"Resource {args.resource} is not recognized.")
+# EC2 specific arguments
+ec2_parser = subparsers.add_parser('ec2', help='EC2 related options')
+ec2_parser.add_argument('--action',
+                        type=str,
+                        default='create',
+                        help='create, update or list the resource (default creates)')
+ec2_parser.add_argument('--os',
+                        type=str,
+                        default='ubuntu',
+                        choices=['ubuntu', 'amazon'],
+                        help='Specify the AWS AMI [ubuntu, amazon] (default ubuntu)')
+ec2_parser.add_argument('--machine',
+                        type=str,
+                        default='t2',
+                        choices=['t2', 't3'],
+                        help='Specify machine type t2 or t3 (t2.micro or t3.nano)')
+# S3 specific arguments
+s3_parser = subparsers.add_parser('s3', help='S3 related options')
+
+# Route53 specific argumentsv
+route53_parser = subparsers.add_parser('route53', help='Route53 related options')
+
+args = parser.parse_args() # parsing the args
+
+match args.resource.lower():
+    case "ec2":
+        print("You have selected EC2 as the resource.")
+        ec2_handler(args.action.lower(), args.os.lower(), args.machine.lower())
+    case "s3":
+        print("You have selected EC2 as the resource.")
+        ec2_handler(args.action.lower(), args.os.lower(), args.machine.lower())
+    case "route53":
+        print("You have selected EC2 as the resource.")
+        ec2_handler(args.action.lower(), args.os.lower(), args.machine.lower())
+    case _:
+        print(f"Resource {args.resource} is not recognized.")
+
 
