@@ -7,12 +7,12 @@ from consts import Tag
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
 
-def s3_handler(action, bucket_name, file, access):
+def s3_handler(action, bucket_name, file_path, access):
     match action:
         case "create":
             create_bucket(bucket_name, access)
-        case "uplaod":
-            pass
+        case "upload":
+            upload_file_to_bucket(bucket_name, file_path)
         case "list":
             list_buckets()
 
@@ -40,15 +40,14 @@ def create_bucket(bucket_name, access):
         print(f"Error creating bucket: {str(e)}")
 
 def upload_file_to_bucket(bucket_name, file_path):
-    """Upload a file to the bucket only if it was created by CLI"""
     try:
-        # Verify that the bucket was created via CLI by checking its tags
+        # Verify that the bucket was created by the user
         bucket_tagging = s3_client.get_bucket_tagging(Bucket=bucket_name)
         tags = {tag['Key']: tag['Value'] for tag in bucket_tagging['TagSet']}
         
-        if Tag['Key'].value == Tag['Value'].value:
+        if tags.get('tag:{}'.format(Tag['Key'].value)) == Tag['Value'].value:
             # Upload the file
-            file_name = file_path.split('/')[-1]
+            file_name = file_path.split('/')[-1] # if uploading from windows change to '\\'
             s3_client.upload_file(file_path, bucket_name, file_name)
             print(f"File '{file_name}' uploaded to bucket '{bucket_name}'.")
         else:
@@ -78,7 +77,7 @@ def list_buckets():
                     print(f"Error getting tags for bucket '{bucket['Name']}': {e}")
 
         if my_buckets:
-            print("S3 Buckets created by the CLI:")
+            print(f"S3 Buckets created by '{Tag['Value'].value}':")
             for bucket_name in my_buckets:
                 print(f" - {bucket_name}")
         else:
