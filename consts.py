@@ -16,3 +16,7 @@ class EC2_Settings(Enum):
     Key = 'python-ID'
     Value = get_hostname()
     Pem_Key = 'yoram-key-home'
+
+class Tag(Enum):
+    Key = 'python-ID'   
+    Value = get_hostname()

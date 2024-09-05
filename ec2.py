@@ -1,5 +1,5 @@
 import boto3
-from consts import EC2_Settings, get_hostname
+from consts import EC2_Settings
 
 # Creates ec2 session using aws cli
 ec2_resource = boto3.resource('ec2', region_name='us-east-1')
@@ -12,8 +12,6 @@ def ec2_handler(action, os, instance_type, instance_id, command):
             manage_instance(instance_id, command)
         case "list":
             list_instances()
-        case _:
-            print('please see the help section to know what is possible with the EC2 resource')
 
 def create_instances(os, instance_type):
     print('creates ec2 with the following params:', os, instance_type)
