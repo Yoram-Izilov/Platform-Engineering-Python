@@ -1,7 +1,7 @@
 import boto3
 from consts import EC2_Settings
 
-# Create a session using your configured credentials
+# Creates ec2 session using aws cli
 ec2_resource = boto3.resource('ec2', region_name='us-east-1')
 
 def ec2_handler(action: str, os: str, machine):
@@ -104,5 +104,3 @@ def list_ec2():
 
 def update_ec2(os, machine):
     pass
-
-
