@@ -1,4 +1,9 @@
 from enum import Enum
+import socket
+
+def get_hostname():
+    hostname = socket.gethostname()
+    return hostname
 
 # all the consts will be in this file (ami and such)
 class EC2_Settings(Enum):
@@ -9,4 +14,4 @@ class EC2_Settings(Enum):
     SubnetId = 'subnet-0452b44b8cc2a5a34'
     SecurityGroup = 'sg-02a922a216b8f2690'
     Key = 'python-ID'
-    Value = 'Yoram'
+    Value = get_hostname()

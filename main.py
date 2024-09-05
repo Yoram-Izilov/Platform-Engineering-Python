@@ -11,9 +11,10 @@ subparsers = parser.add_subparsers(dest='resource', required=True)
 ec2_parser = subparsers.add_parser('ec2', help='EC2 related options')
 ec2_parser.add_argument('--action',
                         type=str,
-                        default='create',
-                        choices=['create', 'update', 'list'],
-                        help='create, update or list the resource (default creates)')
+                        required=True,
+                        choices=['create', 'manage', 'list'],
+                        help='create - creates a new EC2 instance\n' +
+                             'manage - start or stopor list EC2 instances (default creates)')
 ec2_parser.add_argument('--os',
                         type=str,
                         default='ubuntu',
@@ -27,23 +28,20 @@ ec2_parser.add_argument('--instance',
 
 # S3 specific arguments
 s3_parser = subparsers.add_parser('s3', help='S3 related options')
-# Add S3 specific arguments here
+# Add S3 arguments
 
 # Route53 specific arguments
 route53_parser = subparsers.add_parser('route53', help='Route53 related options')
-# Add Route53 specific arguments here
+# Add Route53 arguments 
 
 # Parse the arguments
 args = parser.parse_args() 
 
-# Match on the resource type
 match args.resource:
     case "ec2":
-        print("You have selected EC2 as the resource.")
         ec2_handler(args.action.lower(), args.os.lower(), args.instance.lower())
     case "s3":
         print("You have selected S3 as the resource.")
     case "route53":
         print("You have selected Route53 as the resource.")
-    case _:
-        print(f"Resource {args.resource} is not recognized.")
+  
