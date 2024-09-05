@@ -4,19 +4,19 @@ from consts import EC2_Settings
 # Creates ec2 session using aws cli
 ec2_resource = boto3.resource('ec2', region_name='us-east-1')
 
-def ec2_handler(action: str, os: str, machine):
+def ec2_handler(action, os, instance_type):
     match action.lower():
         case "create":
-            create_ec2(os, machine)
+            create_ec2(os, instance_type)
         case "update":
-            update_ec2(os, machine)
+            update_ec2(os, instance_type)
         case "list":
             list_ec2()
         case _:
             print('please see the help section to know what is possible with the EC2 resource')
 
-def create_ec2(os, machine):
-    print('creates ec2 with the following params:', os, machine)
+def create_ec2(os, instance_type):
+    print('creates ec2 with the following params:', os, instance_type)
 
     if(count_running_EC2() >= 2):
         print('You have 2 instances running, \nyou are not allowed to open another one')
@@ -26,7 +26,7 @@ def create_ec2(os, machine):
         ImageId = EC2_Settings[os].value,  # ubuntu or amazon linux
         MinCount=1,
         MaxCount=1,
-        InstanceType= EC2_Settings[machine].value, # t2 or t3 machine
+        InstanceType= EC2_Settings[instance_type].value, # t2 or t3 instance type
         KeyName='yoram-key-home',
         NetworkInterfaces=[{
             'DeviceIndex': 0,
@@ -88,8 +88,7 @@ def list_ec2():
         instance_info = {
             'Instance ID': instance.id,
             'Instance Type': instance.instance_type,
-            'State': instance.state['Name'],
-            'Tags': {tag['Key']: tag['Value'] for tag in instance.tags} if instance.tags else {}
+            'State': instance.state['Name']
         }
         instance_list.append(instance_info)
 
@@ -101,5 +100,5 @@ def list_ec2():
     else:
         print(f"No instances found with tag {EC2_Settings['Key'].value}: {EC2_Settings['Value'].value}.")
 
-def update_ec2(os, machine):
+def update_ec2(os, instance_type):
     pass
