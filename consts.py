@@ -15,3 +15,4 @@ class EC2_Settings(Enum):
     SecurityGroup = 'sg-02a922a216b8f2690'
     Key = 'python-ID'
     Value = get_hostname()
+    Pem_Key = 'yoram-key-home'

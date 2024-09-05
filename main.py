@@ -20,11 +20,20 @@ ec2_parser.add_argument('--os',
                         default='ubuntu',
                         choices=['ubuntu', 'amazon'],
                         help='AWS AMI - ubuntu or amazon (default ubuntu)')
-ec2_parser.add_argument('--instance',
+ec2_parser.add_argument('--instance-type',
                         type=str,
                         default='t2',
                         choices=['t2', 't3'],
                         help='instance type - t2 or t3 (t2.micro or t3.nano)')
+ec2_parser.add_argument('--instance-id',
+                        type=str,
+                        help='The id of the instance')
+ec2_parser.add_argument('--state',
+                        type=str,
+                        default='start',
+                        choices=['start', 'stop', 'terminate'],
+                        help='Instanse state - start, stop or terminate (default start)')
+
 
 # S3 specific arguments
 s3_parser = subparsers.add_parser('s3', help='S3 related options')
@@ -39,7 +48,12 @@ args = parser.parse_args()
 
 match args.resource:
     case "ec2":
-        ec2_handler(args.action.lower(), args.os.lower(), args.instance.lower())
+        ec2_handler(args.action.lower(),
+                    args.os.lower(),
+                    args.instance_type.lower(),
+                    args.instance_id.lower() if args.instance_id else None,
+                    args.state.lower(),
+                    )
     case "s3":
         print("You have selected S3 as the resource.")
     case "route53":
