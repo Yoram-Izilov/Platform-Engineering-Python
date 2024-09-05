@@ -16,8 +16,8 @@ parser.add_argument('--os',
                     help='Specify the AWS AMI [ubuntu, amazon] (default ubuntu)')
 parser.add_argument('--machine',
                     type=str,
-                    default='t2.micro',
-                    help='t3.nano or t2.micro (default t2.micro)')
+                    default='t2',
+                    help='values t3 or t2 (t3.nano or t2.micro)')
 
 # Parse the arguments
 args = parser.parse_args()
