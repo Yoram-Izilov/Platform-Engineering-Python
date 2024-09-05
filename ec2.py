@@ -1,5 +1,8 @@
 import boto3
-from consts import AMI, Instance_Type
+from consts import EC2_Settings
+
+# Create a session using your configured credentials
+ec2_resource = boto3.resource('ec2', region_name='us-east-1')
 
 def ec2_handler(action: str, os: str, machine):
     match action.lower():
@@ -7,7 +10,7 @@ def ec2_handler(action: str, os: str, machine):
             create_ec2(os, machine)
         case "update":
             update_ec2(os, machine)
-        case "delete":
+        case "list":
             list_ec2()
         case _:
             print('please see the help section to know what is possible with the EC2 resource')
@@ -15,21 +18,21 @@ def ec2_handler(action: str, os: str, machine):
 def create_ec2(os, machine):
     print('creates ec2 with the following params:', os, machine)
 
-    # Create a session using your configured credentials
-    ec2 = boto3.resource('ec2', region_name='us-east-1')
-
+    if(count_running_EC2() >= 2):
+        print('You have 2 instances running, \nyou are not allowed to open another one')
+        return
     # Launch the EC2 instance
-    instance = ec2.create_instances(
-        ImageId = AMI[os].value,  # ubuntu or amazon linux
+    instance = ec2_resource.create_instances(
+        ImageId = EC2_Settings[os].value,  # ubuntu or amazon linux
         MinCount=1,
         MaxCount=1,
-        InstanceType= Instance_Type[machine].value, # t2 or t3 machine
-        KeyName='yoram-ssh',
+        InstanceType= EC2_Settings[machine].value, # t2 or t3 machine
+        KeyName='yoram-key-home',
         NetworkInterfaces=[{
             'DeviceIndex': 0,
-            'SubnetId' : 'subnet-0452b44b8cc2a5a34',  # Yoram VPC public 1 subnet
+            'SubnetId' : EC2_Settings['SubnetId'].value,  # Yoram VPC public 1 subnet
             'Groups': [
-                'sg-02a922a216b8f2690',  # Yoram ssh all SG ID
+                EC2_Settings['SecurityGroup'].value,  # Yoram ssh all SG ID
             ],
             'AssociatePublicIpAddress': True
         }],
@@ -38,21 +41,68 @@ def create_ec2(os, machine):
                 'ResourceType': 'instance',
                 'Tags': [{
                         'Key': 'Name',
-                        'Value': Instance_Type[machine].value + ' Yoram'
+                        'Value': EC2_Settings[os].value + ' Yoram'
                     },{
-                        'Key': 'python-ID',
-                        'Value': 'Yoram'
+                        'Key': EC2_Settings['Key'].value,
+                        'Value': EC2_Settings['Value'].value
                     } 
                 ]
             }
         ],
     )
-
-    # Get the instance ID and other details
+    # Shows the instace id which was created
     instance_id = instance[0].id
     print(f'Launched EC2 instance with ID: {instance_id}')
 
-def update_ec2(os, machine):
-    pass 
+def count_running_EC2 ():
+    # Filter instances based on the specified tag and state
+    filters = [
+        {
+            'Name': 'tag:{}'.format(EC2_Settings['Key'].value),
+            'Values': [EC2_Settings['Value'].value]
+        },
+        {
+            'Name': 'instance-state-name',
+            'Values': ['running']
+        }
+    ]
+    # Retrieve the instances
+    instances = ec2_resource.instances.filter(Filters=filters)
+    # Count the instances
+    count = len(list(instances))
+    print(count)
+    return count
+
 def list_ec2():
+    # Filter instances based on the specified tag
+    filters = [
+        {
+            'Name': 'tag:{}'.format(EC2_Settings['Key'].value),
+            'Values': [EC2_Settings['Value'].value]
+        }
+    ]
+    # Retrieve the instances
+    instances = ec2_resource.instances.filter(Filters=filters)
+    # List the instances
+    instance_list = []
+    for instance in instances:
+        instance_info = {
+            'Instance ID': instance.id,
+            'Instance Type': instance.instance_type,
+            'State': instance.state['Name'],
+            'Tags': {tag['Key']: tag['Value'] for tag in instance.tags} if instance.tags else {}
+        }
+        instance_list.append(instance_info)
+
+    # Prints the instances
+    if instance_list:
+        print("Instances with tag '{}: {}':".format(EC2_Settings['Key'].value, EC2_Settings['Value'].value))
+        for instance in instance_list:
+            print(instance)
+    else:
+        print(f"No instances found with tag {EC2_Settings['Key'].value}: {EC2_Settings['Value'].value}.")
+
+def update_ec2(os, machine):
     pass
+
+
