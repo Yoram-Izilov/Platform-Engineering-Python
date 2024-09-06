@@ -17,10 +17,12 @@ class EC2_Settings(Enum):
     Value = get_hostname()
     Pem_Key = 'yoram-key-home'
 
+# s3 Tag
 class Tag(Enum):
     Key = 'python-ID'   
     Value = get_hostname()
 
+# Route53 identifiers 
 class Route(Enum):
     VPC_ID = 'vpc-0d389958a2c0cadd0'
     Hostname = get_hostname()

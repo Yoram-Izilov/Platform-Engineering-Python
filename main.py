@@ -1,4 +1,5 @@
 import argparse
+import argcomplete
 from argparse import RawTextHelpFormatter
 from ec2 import ec2_handler
 from s3 import s3_handler
@@ -88,7 +89,8 @@ manage_records_parser.add_argument('--record-value',
                                     required=True,
                                     help='Value of the DNS record')
 
-
+# Enable autocomplete
+argcomplete.autocomplete(parser)
 # Parse the arguments
 args = parser.parse_args() 
 
