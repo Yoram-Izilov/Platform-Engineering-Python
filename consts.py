@@ -20,3 +20,8 @@ class EC2_Settings(Enum):
 class Tag(Enum):
     Key = 'python-ID'   
     Value = get_hostname()
+
+class Route(Enum):
+    VPC_ID = 'vpc-0d389958a2c0cadd0'
+    Hostname = get_hostname()
+
