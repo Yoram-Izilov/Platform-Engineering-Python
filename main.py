@@ -77,10 +77,10 @@ manage_records_parser.add_argument('--action',
                                     type=lambda s: s.lower(), 
                                     required=True,
                                     choices=['create', 'upsert', 'delete'],
-                                    help='''Action to perform on the record (only if created here by the current user)
-                                    create - create a new record
-                                    upsert - updating existing record 
-                                    ''')
+                                    help=
+'''Action to perform on the record (only if created here by the current user)
+create - create a new record
+upsert - updating existing record''')
 manage_records_parser.add_argument('--record-name',
                                     type=str,
                                     required=True,
