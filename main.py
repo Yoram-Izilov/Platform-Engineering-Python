@@ -104,6 +104,7 @@ args = parser.parse_args()
 # Match the resource type and invoke appropriate handler function
 match args.resource:
     case "ec2":
+        # chaning os and instance type to upper for the ENUMs
         ec2_handler(args.action, args.os.upper(), args.instance_type.upper(),
                     args.instance_id if args.instance_id else None, args.state)
     case "s3":

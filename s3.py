@@ -25,14 +25,41 @@ def s3_handler(action: str, bucket_name, file_path, access: str):
 
 def create_bucket(bucket_name: str, access: str):
     """Creates a new S3 bucket (private) with the specified name and access type.
+    (public does not work because of permission issues, but the code SHOULD work lol)
     
     :param str bucket_name: Name of the S3 bucket to create
     :param str access: Access level for the bucket ('public' or 'private')
     """
+
     try:
         # Create the bucket
         s3_client.create_bucket(Bucket=bucket_name)
         
+        # Set public or private ACL based on the access parameter
+        if access == 'public':
+            # Set bucket ACL to public-read
+            s3_client.put_bucket_acl(Bucket=bucket_name, ACL='public-read')
+            print(f"Bucket '{bucket_name}' created with public access.")
+
+            # Optionally, set a public bucket policy to allow public access to objects
+            public_policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "PublicReadGetObject",
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": "s3:GetObject",
+                        "Resource": f"arn:aws:s3:::{bucket_name}/*"
+                    }
+                ]
+            }
+            s3_client.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(public_policy))
+            print(f"Public policy applied to bucket '{bucket_name}'.")
+        
+        else:
+            print(f"Bucket '{bucket_name}' created with private access.")
+
         # Add tags to identify the bucket as created by the CLI
         s3_client.put_bucket_tagging(
             Bucket=bucket_name,
@@ -45,8 +72,6 @@ def create_bucket(bucket_name: str, access: str):
                 ]
             }
         )
-
-        print(f"Bucket '{bucket_name}' created successfully with {'public' if access=='public' else 'private'} access.")
 
     except Exception as e:
         print(f"Error creating bucket: {str(e)}")
