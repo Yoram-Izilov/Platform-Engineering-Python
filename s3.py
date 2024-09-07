@@ -24,8 +24,7 @@ def s3_handler(action: str, bucket_name, file_path, access: str):
             list_buckets()
 
 def create_bucket(bucket_name: str, access: str):
-    """Creates a new S3 bucket (private) with the specified name and access type.
-    (public does not work because of permission issues, but the code SHOULD work lol)
+    """Creates a new S3 bucket with the specified name and access type.
     
     :param str bucket_name: Name of the S3 bucket to create
     :param str access: Access level for the bucket ('public' or 'private')
@@ -37,9 +36,16 @@ def create_bucket(bucket_name: str, access: str):
         
         # Set public or private ACL based on the access parameter
         if access == 'public':
-            # Set bucket ACL to public-read
-            s3_client.put_bucket_acl(Bucket=bucket_name, ACL='public-read')
-            print(f"Bucket '{bucket_name}' created with public access.")
+            # Disable block public ACLs for this bucket
+            s3_client.put_public_access_block(
+                Bucket=bucket_name,
+                PublicAccessBlockConfiguration={
+                    'BlockPublicAcls': False,
+                    'IgnorePublicAcls': False,
+                    'BlockPublicPolicy': False,
+                    'RestrictPublicBuckets': False
+                }
+            )
 
             # Optionally, set a public bucket policy to allow public access to objects
             public_policy = {
@@ -57,8 +63,8 @@ def create_bucket(bucket_name: str, access: str):
             s3_client.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(public_policy))
             print(f"Public policy applied to bucket '{bucket_name}'.")
         
-        else:
-            print(f"Bucket '{bucket_name}' created with private access.")
+    
+        print(f"Bucket '{bucket_name}' created with '{access}' access.")
 
         # Add tags to identify the bucket as created by the CLI
         s3_client.put_bucket_tagging(
