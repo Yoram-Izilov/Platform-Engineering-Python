@@ -3,19 +3,23 @@ from consts import Route
 
 route53_client = boto3.client('route53')
 
-def create_private_hosted_zone(zone_name):
+def create_private_hosted_zone(zone_name: str):
+    """Creates a new private hosted zone in Route 53.
+
+    :param str zone_name: Name of the private hosted zone to create
+    """
     try:
         # Creating the zone
         response = route53_client.create_hosted_zone(
             Name = zone_name,
             CallerReference=str(hash(zone_name)),  # Unique string to ensure it runs only one time
             HostedZoneConfig = {
-                'Comment': 'Private hosted zone created by ' + Route['Hostname'].value,
+                'Comment': 'Private hosted zone created by ' + Route.HOSTNAME.value,
                 'PrivateZone': True
             },
             VPC = {
                 'VPCRegion': 'us-east-1',
-                'VPCId': Route['VPC_ID'].value
+                'VPCId': Route.VPC_ID.value
             }
         )
 
@@ -27,7 +31,7 @@ def create_private_hosted_zone(zone_name):
             ResourceType='hostedzone',
             ResourceId=hosted_zone_id.split('/')[-1],  # Extract the actual ID
             AddTags=[
-                {'Key': Route['Hostname'].name, 'Value': Route['Hostname'].value}
+                {'Key': Route.HOSTNAME.name, 'Value': Route.HOSTNAME.value}
             ]
         )
         print(f"Private hosted zone '{zone_name}' created successfully with ID '{hosted_zone_id}'.")
@@ -36,7 +40,16 @@ def create_private_hosted_zone(zone_name):
         print(f"Error creating private hosted zone: {str(e)}")
         return None
 
-def manage_dns_records(zone_id, action, record_name, record_type, record_value):
+def manage_dns_records(zone_id: str, action: str, record_name: str, record_type: str, record_value: str):
+    """
+    Manages DNS records in a specified hosted zone.
+
+    :param str zone_id: The ID of the hosted zone
+    :param str action: The action to perform ('create', 'upsert', 'delete')
+    :param str record_name: Name of the DNS record
+    :param str record_type: Type of the DNS record ('A', 'CNAME', 'TXT', 'MX')
+    :param str record_value: Value of the DNS record
+    """
     try:
         # Get all hosted zones
         response = route53_client.list_hosted_zones()
@@ -76,13 +89,17 @@ def manage_dns_records(zone_id, action, record_name, record_type, record_value):
 
         # Adjusting the output for upsert (update)
         if action == 'upsert':
-            action == 'update'
+            action = 'update'
         print(f"DNS record {action}d successfully.")
 
     except Exception as e:
         print(f"Error managing DNS records: {str(e)}")
 
 def get_host_zones(all_hosted_zones):
+    """Reuturn the user zones out of the given zones.
+
+    :param all_hosted_zones: All the zones in AWS
+    """
     # Filter hosted zones by tag
     matching_zones = []
     for zone in all_hosted_zones:
@@ -95,7 +112,7 @@ def get_host_zones(all_hosted_zones):
 
         # Check if the host made this zone by checking tags
         for tag in tags:
-            if tag['Key'] == Route['Hostname'].name and tag['Value'] == Route['Hostname'].value:
+            if tag['Key'] == Route.HOSTNAME.name and tag['Value'] == Route.HOSTNAME.value:
                 if zone['Config']['PrivateZone']:  # Ensure it's a private hosted zone
                     matching_zones.append({
                         'Id': zone['Id'],

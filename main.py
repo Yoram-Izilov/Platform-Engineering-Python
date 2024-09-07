@@ -18,7 +18,7 @@ ec2_parser.add_argument('--action',
                         choices=['create', 'manage', 'list'],
                         default='create',   
                         help=
-'''create - creates a new EC2 instance
+'''create - creates a new running EC2 instance
 manage - start or stops 
 list - lists all EC2 instances 
 (default value: creates)''')
@@ -61,13 +61,14 @@ s3_parser.add_argument('--access',
                         default='private',
                         help='Bucket access type - public or private (default value: private)')
 
-# Create hosted zone
+# Create hosted zone specific arguments
 create_zone_parser = subparsers.add_parser('r53-create-zone', help='Create a new DNS hosted zone', formatter_class=RawTextHelpFormatter)
 create_zone_parser.add_argument('--zone-name',
                                 type=str,
                                 required=True,
                                 help='Name of the user DNS zone to create')
-# Manage DNS records
+
+# Manage DNS records specific arguments
 manage_records_parser = subparsers.add_parser('r53-manage-records', help='Manage DNS records in a zone', formatter_class=RawTextHelpFormatter)
 manage_records_parser.add_argument('--zone-id',
                                     type=str,
@@ -100,9 +101,10 @@ argcomplete.autocomplete(parser)
 # Parse the arguments
 args = parser.parse_args() 
 
+# Match the resource type and invoke appropriate handler function
 match args.resource:
     case "ec2":
-        ec2_handler(args.action, args.os, args.instance_type,
+        ec2_handler(args.action, args.os.upper(), args.instance_type.upper(),
                     args.instance_id if args.instance_id else None, args.state)
     case "s3":
         if args.bucket_name or args.action == 'list':

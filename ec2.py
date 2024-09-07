@@ -1,10 +1,18 @@
 import boto3
-from consts import EC2_Settings
+from consts import EC2_Settings, Tag
 
 # Creates ec2 session using aws cli
 ec2_resource = boto3.resource('ec2', region_name='us-east-1')
 
-def ec2_handler(action, os, instance_type, instance_id, command):
+def ec2_handler(action: str, os: str, instance_type: str, instance_id, command: str):
+    """Handles EC2 actions based on the action value.
+     
+    :param str action: The action to perform ('create', 'manage', 'list')
+    :param str os: Operating system for the EC2 instance ('ubuntu' or 'amazon')
+    :param str instance_type: Type of the EC2 instance ('t2' or 't3')
+    :param instance_id: str or None - ID of the EC2 instance (required if action is 'manage')
+    :param str state: Desired state for the instance ('start', 'stop', 'terminate')
+    """
     match action:
         case "create":
             create_instances(os, instance_type)
@@ -13,7 +21,12 @@ def ec2_handler(action, os, instance_type, instance_id, command):
         case "list":
             list_instances()
 
-def create_instances(os, instance_type):
+def create_instances(os: str, instance_type: str):
+    """Creates a new EC2 instance with the specified OS and instance type.
+    
+    :param str os: Operating system for the EC2 instance ('ubuntu' or 'amazon')
+    :param str instance_type: Type of the EC2 instance ('t2' or 't3')
+    """
     print('creates ec2 with the following params:', os, instance_type)
 
     if(count_running_instances() >= 2):
@@ -25,12 +38,12 @@ def create_instances(os, instance_type):
         MinCount = 1,
         MaxCount = 1,
         InstanceType = EC2_Settings[instance_type].value, # t2 or t3 instance type
-        KeyName = EC2_Settings["Pem_Key"].value,
+        KeyName = EC2_Settings.PEM_KEY.value,
         NetworkInterfaces=[{
             'DeviceIndex': 0,
-            'SubnetId' : EC2_Settings['SubnetId'].value,  # Yoram-VPC-public-1 subnet
+            'SubnetId' : EC2_Settings.SUBNET_ID.value,  # Yoram-VPC-public-1 subnet
             'Groups': [
-                EC2_Settings['SecurityGroup'].value,  # Yoram ssh all SG ID
+                EC2_Settings.SECURITY_GROUP.value,  # Yoram ssh all SG ID
             ],
             'AssociatePublicIpAddress': True
         }],
@@ -39,11 +52,11 @@ def create_instances(os, instance_type):
                 'ResourceType': 'instance',
                 'Tags': [{
                             'Key': 'Name',
-                            'Value': EC2_Settings[os].name + ' ' + EC2_Settings['Value'].value
+                            'Value': EC2_Settings[os].name + ' ' + Tag.TAG_VALUE.value
                         },
                         {
-                            'Key': EC2_Settings['Key'].value,
-                            'Value': EC2_Settings['Value'].value
+                            'Key': Tag.TAG_KEY.value,
+                            'Value': Tag.TAG_VALUE.value
                     } 
                 ]
             }
@@ -54,11 +67,14 @@ def create_instances(os, instance_type):
     print(f'Launched EC2 instance with ID: {instance_id}')
 
 def count_running_instances ():
+    """Counts the number of running instances of the user created by this cli.
+
+    :Returns: Number of running instances of the user created by this cli"""
     # Filter instances based on the specified tag and state
     filters = [
         {
-            'Name': 'tag:{}'.format(EC2_Settings['Key'].value),
-            'Values': [EC2_Settings['Value'].value]
+            'Name': 'tag:{}'.format(Tag.TAG_KEY.value),
+            'Values': [Tag.TAG_VALUE.value]
         },
         {
             'Name': 'instance-state-name',
@@ -72,11 +88,12 @@ def count_running_instances ():
     return count
 
 def list_instances():
+    """Prints all instances of the user made by this cli."""
     # Filter instances based on the specified tag
     filters = [
         {
-            'Name': 'tag:{}'.format(EC2_Settings['Key'].value),
-            'Values': [EC2_Settings['Value'].value]
+            'Name': 'tag:{}'.format(Tag.TAG_KEY.value),
+            'Values': [Tag.TAG_VALUE.value]
         }
     ]
     # Retrieve the instances
@@ -95,18 +112,23 @@ def list_instances():
 
     # Prints the instances
     if instance_list:
-        print("Instances with tag '{}: {}':".format(EC2_Settings['Key'].value, EC2_Settings['Value'].value))
+        print("Instances with tag '{}: {}':".format(Tag.TAG_KEY.value, Tag.TAG_VALUE.value))
         for instance in instance_list:
             print(instance)
     else:
-        print(f"No instances found with tag {EC2_Settings['Key'].value}: {EC2_Settings['Value'].value}.")
+        print(f"No instances found with tag {Tag.TAG_KEY.value}: {Tag.TAG_VALUE.value}.")
 
-def manage_instance(instance_id, state):
+def manage_instance(instance_id: str, state: str):
+    """Manages (start, stop, or terminate) an EC2 instance by its ID.
+
+    :param str instance_id: The ID of the instance to manage
+    :param str state: Desired state for the instance ('start', 'stop', 'terminate')
+    """
     # Filter instances by the specified tag key and value
     filters = [
         {
-            'Name': 'tag:{}'.format(EC2_Settings['Key'].value),
-            'Values': [EC2_Settings['Value'].value]
+            'Name': 'tag:{}'.format(Tag.TAG_KEY.value),
+            'Values': [Tag.TAG_VALUE.value]
         }
     ]
     
