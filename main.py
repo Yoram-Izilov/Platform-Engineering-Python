@@ -1,5 +1,5 @@
 import argparse
-import argcomplete
+# import argcomplete
 from argparse import RawTextHelpFormatter
 from ec2 import ec2_handler
 from s3 import s3_handler
@@ -97,7 +97,7 @@ manage_records_parser.add_argument('--record-value',
                                     help='Value of the DNS record')
 
 # Enable autocomplete
-argcomplete.autocomplete(parser)
+# argcomplete.autocomplete(parser)
 # Parse the arguments
 args = parser.parse_args() 
 
@@ -117,5 +117,3 @@ match args.resource:
         create_private_hosted_zone(args.zone_name)
     case "r53-manage-records":
         manage_dns_records(args.zone_id, args.action, args.record_name, args.record_type, args.record_value)
-
-  
