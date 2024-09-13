@@ -51,7 +51,7 @@ s3_parser.add_argument('--action',
                         choices=['create', 'upload', 'list'],
                         help='creates, uploads or lists buckets of the user')
 s3_parser.add_argument('--bucket-name',
-                        type=str,
+                        type=lambda s: s.lower(),
                         help='Name of the user S3 bucket')
 s3_parser.add_argument('--file',
                         type=str,
