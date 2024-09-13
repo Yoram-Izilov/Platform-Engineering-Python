@@ -1,0 +1,40 @@
+networks:
+  jenkins-network:
+    name: Jenkins
+
+volumes:
+  data:
+    name: jenkins-data
+
+services:
+  socat:
+    container_name: jenkins-docker
+    image: alpine/socat
+    restart: unless-stopped
+    networks:
+      jenkins-network:
+        aliases:
+          - docker
+    expose:
+      - "2375"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+
+  jenkins:
+    container_name: jenkins-blueocean
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - jenkins-network
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - data:/var/jenkins_home
+      - /sharedFolder:/var/jenkins_home/userContent
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_TLS_VERIFY=""

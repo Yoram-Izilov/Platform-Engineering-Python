@@ -26,16 +26,16 @@ pipeline {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
                         if (params.ACTION == 'list') {
-                            sh(script: "python3 main.py --hostname ${env.HOSTNAME} s3 --action list")
+                            sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} s3 --action list")
                         }
                         else if (params.ACTION == 'create') {
-                            sh(script: "python3 main.py --hostname ${env.HOSTNAME} s3 --action create --bucket-name ${params.BUCKET_NAME} --access ${params.ACCESS}")
+                            sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} s3 --action create --bucket-name ${params.BUCKET_NAME} --access ${params.ACCESS}")
                         }
                         else if (params.ACTION == 'upload') {
                             // Validate local file path
                             def fileExists = sh(script: "test -f /var/jenkins_home/userContent/${params.FILE_PATH} && echo 'true' || echo 'false'", returnStdout: true).trim()
                             if (fileExists == 'true') {
-                                sh(script: "python3 main.py --hostname ${env.HOSTNAME} s3 --action upload --bucket-name ${params.BUCKET_NAME} --file /var/jenkins_home/userContent/${params.FILE_PATH}")
+                                sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} s3 --action upload --bucket-name ${params.BUCKET_NAME} --file /var/jenkins_home/userContent/${params.FILE_PATH}")
                             } 
                             else {
                                 error "Source file ${params.FILE_PATH} does not exist on the Jenkins agent."

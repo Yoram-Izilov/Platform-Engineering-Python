@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
-                        sh(script: "python3 main.py --hostname ${env.HOSTNAME} r53-create-zone --zone-name ${params.ZONE_NAME}")
+                        sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} r53-create-zone --zone-name ${params.ZONE_NAME}")
                     }
                 }
             }

@@ -1,5 +1,5 @@
 import boto3
-from consts import EC2_Settings, Tag, get_hostname
+from src.consts import EC2_Settings, Tag, get_hostname
 # Creates ec2 session using aws cli
 ec2_resource = boto3.resource('ec2', region_name='us-east-1')
 
