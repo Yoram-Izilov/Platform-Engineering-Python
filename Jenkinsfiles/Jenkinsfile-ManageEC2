@@ -25,19 +25,10 @@ pipeline {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
                         if (params.ACTION == 'List') {
-                            def result = sh(
-                                script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action list",
-                                returnStdout: true
-                            ).trim()
-                            echo result
+                            sh(script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action list")
                         }
                         else{
-                            echo 'Starting EC2 instance...'
-                            def result = sh(
-                                script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.INSTANCE_ID} --state ${params.STATE}",
-                                returnStdout: true
-                            ).trim()
-                            echo result
+                            sh(script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.INSTANCE_ID} --state ${params.STATE}")
                         }
                     }
                 }
