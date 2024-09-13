@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
-                        sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} r53-manage-records --zone-id ${params.ZONE_ID} --action ${params.ACTION} --record-name ${params.RECORD_NAME} --record-type ${params.RECORD_TYPE} --record-value ${params.RECORD_VALUE}")
+                        sh(script: "python3 .src/main.py --hostname ${env.HOSTNAME} r53-manage-records --zone-id ${params.ZONE_ID} --action ${params.ACTION} --record-name ${params.RECORD_NAME} --record-type ${params.RECORD_TYPE} --record-value ${params.RECORD_VALUE}")
                     }
                 }
             }

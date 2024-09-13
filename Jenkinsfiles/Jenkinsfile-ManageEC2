@@ -25,10 +25,10 @@ pipeline {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
                         if (params.ACTION == 'List') {
-                            sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} ec2 --action list")
+                            sh(script: "python3 .src/main.py --hostname ${env.HOSTNAME} ec2 --action list")
                         }
                         else{
-                            sh(script: "python3 src/main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.INSTANCE_ID} --state ${params.STATE}")
+                            sh(script: "python3 .src/main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.INSTANCE_ID} --state ${params.STATE}")
                         }
                     }
                 }
