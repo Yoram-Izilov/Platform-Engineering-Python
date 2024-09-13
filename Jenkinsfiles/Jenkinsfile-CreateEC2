@@ -11,7 +11,6 @@ pipeline {
                     wrap([$class: 'BuildUser']) {
                         env.HOSTNAME = env.BUILD_USER
                     }
-                    echo "HOSTNAME: ${env.HOSTNAME}"
                 }
             }
         }
@@ -25,7 +24,7 @@ pipeline {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
                         def result = sh(
-                            script: "python3 main.py ec2 --action create --instance-type ${params.INSTANCE_TYPE} --os ${params.AMI_TYPE}",
+                            script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action create --instance-type ${params.INSTANCE_TYPE} --os ${params.AMI_TYPE}",
                             returnStdout: true
                         ).trim()
                         echo "S3 Buckets:"
