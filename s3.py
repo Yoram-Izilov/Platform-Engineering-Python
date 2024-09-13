@@ -1,7 +1,7 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
-from consts import Tag
+from consts import Tag, get_hostname
 
 # Initialize S3 client
 s3_client = boto3.client('s3')
@@ -73,7 +73,7 @@ def create_bucket(bucket_name: str, access: str):
                 'TagSet': [
                     {
                         'Key': 'tag:{}'.format(Tag.TAG_KEY.value),
-                        'Value': Tag.TAG_VALUE.value
+                        'Value': get_hostname()
                     }
                 ]
             }
@@ -93,7 +93,7 @@ def upload_file_to_bucket(bucket_name: str, file_path: str):
         bucket_tagging = s3_client.get_bucket_tagging(Bucket=bucket_name)
         tags = {tag['Key']: tag['Value'] for tag in bucket_tagging['TagSet']}
         
-        if tags.get('tag:{}'.format(Tag.TAG_KEY.value)) == Tag.TAG_VALUE.value:
+        if tags.get('tag:{}'.format(Tag.TAG_KEY.value)) == get_hostname():
             # Upload the file
             file_name = file_path.split('/')[-1] # if uploading from windows change to '\\'
             s3_client.upload_file(file_path, bucket_name, file_name)
@@ -113,7 +113,7 @@ def list_buckets():
                 bucket_tagging = s3_client.get_bucket_tagging(Bucket=bucket['Name'])
                 tags = {tag['Key']: tag['Value'] for tag in bucket_tagging['TagSet']}
      
-                if tags.get('tag:{}'.format(Tag.TAG_KEY.value)) == Tag.TAG_VALUE.value:
+                if tags.get('tag:{}'.format(Tag.TAG_KEY.value)) == get_hostname():
                     my_buckets.append(bucket['Name'])
             except ClientError as e:
                 # Handle the case when the bucket has no tags
@@ -126,10 +126,10 @@ def list_buckets():
                     print(f"Error getting tags for bucket '{bucket['Name']}': {e}")
 
         if my_buckets:
-            print(f"S3 Buckets created by '{Tag.TAG_VALUE.value}':")
+            print(f"S3 Buckets created by '{get_hostname()}':")
             for bucket_name in my_buckets:
                 print(f" - {bucket_name}")
         else:
-            print(f"No buckets created by '{Tag.TAG_VALUE.value}'.")
+            print(f"No buckets created by '{get_hostname()}'.")
     except Exception as e:
         print(f"Error listing buckets: {str(e)}")

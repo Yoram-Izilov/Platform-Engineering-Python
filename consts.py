@@ -3,13 +3,11 @@ import socket
 
 hostname = ''
 def set_hostname(args_hostname=None):
-    print(args_hostname)
     global hostname 
-    if args_hostname != '':
+    if args_hostname != '' and args_hostname:
         hostname = args_hostname
     else:
         hostname = socket.gethostname()
-    print(hostname)
 
 def get_hostname():
     return hostname
@@ -27,10 +25,10 @@ class EC2_Settings(Enum):
 # s3 Tag
 class Tag(Enum):
     TAG_KEY = 'python-ID'   
-    TAG_VALUE = get_hostname()
+    # TAG_VALUE = get_hostname()
 
 # Route53 identifiers
 class Route(Enum):
     VPC_ID = 'vpc-0d389958a2c0cadd0'
-    HOSTNAME = get_hostname()
+    # HOSTNAME = get_hostname()
 

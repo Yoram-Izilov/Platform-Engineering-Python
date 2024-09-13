@@ -1,5 +1,5 @@
 import boto3
-from consts import Route
+from consts import Route, get_hostname
 
 route53_client = boto3.client('route53')
 
@@ -14,7 +14,7 @@ def create_private_hosted_zone(zone_name: str):
             Name = zone_name,
             CallerReference=str(hash(zone_name)),  # Unique string to ensure it runs only one time
             HostedZoneConfig = {
-                'Comment': 'Private hosted zone created by ' + Route.HOSTNAME.value,
+                'Comment': 'Private hosted zone created by ' + get_hostname(),
                 'PrivateZone': True
             },
             VPC = {
@@ -31,7 +31,7 @@ def create_private_hosted_zone(zone_name: str):
             ResourceType='hostedzone',
             ResourceId=hosted_zone_id.split('/')[-1],  # Extract the actual ID
             AddTags=[
-                {'Key': Route.HOSTNAME.name, 'Value': Route.HOSTNAME.value}
+                {'Key': 'HOSTNAME', 'Value': get_hostname()}
             ]
         )
         print(f"Private hosted zone '{zone_name}' created successfully with ID '{hosted_zone_id}'.")
@@ -112,7 +112,7 @@ def get_host_zones(all_hosted_zones):
 
         # Check if the host made this zone by checking tags
         for tag in tags:
-            if tag['Key'] == Route.HOSTNAME.name and tag['Value'] == Route.HOSTNAME.value:
+            if tag['Key'] == 'HOSTNAME' and tag['Value'] == get_hostname():
                 if zone['Config']['PrivateZone']:  # Ensure it's a private hosted zone
                     matching_zones.append({
                         'Id': zone['Id'],
