@@ -1,9 +1,10 @@
 # ReadMe - In progress..
 
+Requirement
+Docker, download jenkins plugins (user data, docker, aws), create needed pipelines, and shared forder
 
-requirements argcomplete boto3 
-
-activate in bash:
-```sh
-activate-global-python-argcomplete
-```
+Example
+# creating shared folder for both the user and the jenkins
+sudo mkdir -p /sharedFolder
+sudo chmod 777 /sharedFolder/
+docker compose up -d 
