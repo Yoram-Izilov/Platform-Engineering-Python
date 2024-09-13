@@ -27,9 +27,7 @@ pipeline {
                             script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action create --instance-type ${params.INSTANCE_TYPE} --os ${params.AMI_TYPE}",
                             returnStdout: true
                         ).trim()
-                        echo "S3 Buckets:"
                         echo result
-                        echo "HOSTNAME: ${env.HOSTNAME}"
                     }
                 }
             }

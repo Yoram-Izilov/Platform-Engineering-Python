@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    parameters {
+        choice(name: 'ACTION', choices: ['Manage', 'List'], description: 'manage - change instance state || list - lists all EC2 instances')
+        choice(name: 'STATE', choices: ['start', 'stop', 'terminate'], description: 'The id of the instance - works only with the state args (action has to be = "manage")')
+        string(name: 'Instance_ID', defaultValue: '', description: 'Enter the instance id (has to be one created by you on this jenkins machine)')
+    }
+    stages {
+        stage('Get User ID') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        env.HOSTNAME = env.BUILD_USER
+                    }
+                }
+            }
+        }
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
+            }
+        }
+        stage('Create EC2 Instance') {
+            steps {
+                script {
+                    withAWS(credentials: 'YoramAws', region: 'us-east-1') {
+                        if (params.ACTION == 'List') {
+                            def result = sh(
+                                script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action list",
+                                returnStdout: true
+                            ).trim()
+                        }
+                        else{
+                            echo 'Starting EC2 instance...'
+                            def result = sh(
+                                script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.Instance_ID} --state ${params.STATE}",
+                                returnStdout: true
+                            ).trim()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

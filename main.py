@@ -21,7 +21,7 @@ ec2_parser.add_argument('--action',
                         default='create',   
                         help=
 '''create - creates a new running EC2 instance
-manage - start or stops 
+manage - start or stops an instance
 list - lists all EC2 instances 
 (default value: creates)''')
 ec2_parser.add_argument('--os',
