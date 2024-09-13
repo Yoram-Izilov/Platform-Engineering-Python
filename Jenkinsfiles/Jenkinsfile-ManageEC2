@@ -20,7 +20,7 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
             }
         }
-        stage('Create EC2 Instance') {
+        stage('Manage EC2 Instance') {
             steps {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
