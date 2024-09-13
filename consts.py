@@ -2,8 +2,7 @@ from enum import Enum
 import socket
 
 def get_hostname():
-    hostname = socket.gethostname()
-    return hostname
+    return socket.gethostname()
 
 # all the consts will be in this file (ami and such)
 class EC2_Settings(Enum):

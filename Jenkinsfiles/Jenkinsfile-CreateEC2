@@ -5,6 +5,16 @@ pipeline {
         choice(name: 'AMI_TYPE', choices: ['ubuntu', 'amazon'], description: 'Select AMI type (ubuntu or amazon-linux)')
     }
     stages {
+        stage('Get User ID') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        env.HOSTNAME = env.BUILD_USER
+                    }
+                    echo "HOSTNAME: ${env.HOSTNAME}"
+                }
+            }
+        }
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
@@ -20,6 +30,7 @@ pipeline {
                         ).trim()
                         echo "S3 Buckets:"
                         echo result
+                        echo "HOSTNAME: ${env.HOSTNAME}"
                     }
                 }
             }

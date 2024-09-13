@@ -1,11 +1,11 @@
 import argparse
-# import argcomplete
 from argparse import RawTextHelpFormatter
 from ec2 import ec2_handler
 from s3 import s3_handler
 from route53 import create_private_hosted_zone, manage_dns_records
 
 parser = argparse.ArgumentParser(description='Creates AWS resources.', formatter_class=RawTextHelpFormatter)
+parser.add_argument('--hostname', type=str)
 
 # Subparsers for each resource type (ec2, s3, route53)
 subparsers = parser.add_subparsers(dest='resource', required=True)
@@ -40,7 +40,6 @@ ec2_parser.add_argument('--state',
                         choices=['start', 'stop', 'terminate'],
                         default='start',
                         help='Instanse state - start, stop or terminate (default value: start)')
-
 
 # S3 specific arguments
 s3_parser = subparsers.add_parser('s3', help='S3 related operations', formatter_class=RawTextHelpFormatter)
@@ -96,8 +95,6 @@ manage_records_parser.add_argument('--record-value',
                                     required=True,
                                     help='Value of the DNS record')
 
-# Enable autocomplete
-# argcomplete.autocomplete(parser)
 # Parse the arguments
 args = parser.parse_args() 
 
