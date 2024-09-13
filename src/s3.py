@@ -1,7 +1,7 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
-from src.consts import Tag, get_hostname
+from consts import Tag, get_hostname
 
 # Initialize S3 client
 s3_client = boto3.client('s3')

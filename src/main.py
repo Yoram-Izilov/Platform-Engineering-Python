@@ -1,9 +1,9 @@
 import argparse
 from argparse import RawTextHelpFormatter
-from src.ec2 import ec2_handler
-from src.s3 import s3_handler
-from src.route53 import create_private_hosted_zone, manage_dns_records
-from src.consts import set_hostname
+from ec2 import ec2_handler
+from s3 import s3_handler
+from route53 import create_private_hosted_zone, manage_dns_records
+from consts import set_hostname
 
 parser = argparse.ArgumentParser(description='Creates AWS resources.', formatter_class=RawTextHelpFormatter)
 # hostname - added for jenkins pipeline by the user logged in value

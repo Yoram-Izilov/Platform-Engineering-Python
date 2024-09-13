@@ -1,5 +1,5 @@
 import boto3
-from src.consts import Route, get_hostname
+from consts import Route, get_hostname
 
 route53_client = boto3.client('route53')
 
