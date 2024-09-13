@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    parameters {
+        choice(name: 'INSTANCE_TYPE', choices: ['t3', 't2'], description: 'Select instance type (t3.nano or t2.micro)')
+        choice(name: 'AMI_TYPE', choices: ['ubuntu', 'amazon'], description: 'Select AMI type (ubuntu or amazon-linux)')
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
+            }
+        }
+        stage('Create EC2 Instance') {
+            steps {
+                script {
+                    withAWS(credentials: 'YoramAws', region: 'us-east-1') {
+                        def result = sh(
+                            script: "python3 main.py ec2 --action create --instance-type ${params.INSTANCE_TYPE} --os ${params.AMI_TYPE}",
+                            returnStdout: true
+                        ).trim()
+                        echo "S3 Buckets:"
+                        echo result
+                    }
+                }
+            }
+        }
+    }
+}
