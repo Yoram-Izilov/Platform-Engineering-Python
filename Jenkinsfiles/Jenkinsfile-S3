@@ -3,7 +3,7 @@ pipeline {
     parameters {
         choice(name: 'ACTION', choices: ['create', 'upload', 'list'], description: 'creates, uploads or lists buckets of the user')
         string(name: 'BUCKET_NAME', defaultValue: '', description: 'Name of the user S3 bucket')
-        string(name: 'FILE_NAME', defaultValue: '', description: 'File name to upload (valid only on uploading files) *note: has to be in home dir inside the container')
+        string(name: 'FILE_PATH', defaultValue: '', description: 'File name to upload (valid only on uploading files) *note: has to be in home dir inside the container')
         choice(name: 'ACCESS', choices: ['private', 'public'], description: 'Bucket access type - public or private (valid only on creation)')   
     }
     environment {
@@ -23,19 +23,19 @@ pipeline {
             steps {
                 script {
                     // Validate local file path
-                    def fileExists = sh(script: "test -f ${FILE_PATH} && echo 'true' || echo 'false'", returnStdout: true).trim()
+                    def fileExists = sh(script: "test -f ${params.FILE_PATH} && echo 'true' || echo 'false'", returnStdout: true).trim()
                     if(params.ACTION == 'upload') {
                         if (fileExists == 'true') {
                             // Validate container path by running a test command in the container
                             def containerExists = sh(script: "docker exec jenkins-blueocean test -d ${CONTAINER_PATH} && echo 'true' || echo 'false'", returnStdout: true).trim()
                             if (containerExists == 'true') {
                                 // Run docker cp command
-                                sh "docker cp ${FILE_PATH} jenkins-blueocean:${CONTAINER_PATH}"
+                                sh "docker cp ${params.FILE_PATH} jenkins-blueocean:${CONTAINER_PATH}"
                             } else {
                                 error "Destination path ${CONTAINER_PATH} does not exist in the container."
                             }
                         } else {
-                            error "Source file ${FILE_PATH} does not exist on the Jenkins agent."
+                            error "Source file ${params.FILE_PATH} does not exist on the Jenkins agent."
                         }
                     }
                 }
@@ -57,7 +57,7 @@ pipeline {
                             sh(script: "python3 main.py --hostname ${env.HOSTNAME} s3 --action create --bucket-name ${params.BUCKET_NAME} --access ${params.ACCESS}")
                         }
                         else if (params.ACTION == 'upload') {
-                            sh(script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action upload --bucket-name ${params.BUCKET_NAME} --file ${params.FILE_NAME}")
+                            sh(script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action upload --bucket-name ${params.BUCKET_NAME} --file ${params.FILE_PATH}")
                         }
                     }
                 }
