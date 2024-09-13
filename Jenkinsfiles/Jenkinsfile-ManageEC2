@@ -3,7 +3,7 @@ pipeline {
     parameters {
         choice(name: 'ACTION', choices: ['Manage', 'List'], description: 'manage - change instance state || list - lists all EC2 instances')
         choice(name: 'STATE', choices: ['start', 'stop', 'terminate'], description: 'The id of the instance - works only with the state args (action has to be = "manage")')
-        string(name: 'Instance_ID', defaultValue: '', description: 'Enter the instance id (has to be one created by you on this jenkins machine)')
+        string(name: 'INSTANCE_ID', defaultValue: '', description: 'Enter the instance id (has to be one created by you on this jenkins machine)')
     }
     stages {
         stage('Get User ID') {
@@ -29,13 +29,15 @@ pipeline {
                                 script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action list",
                                 returnStdout: true
                             ).trim()
+                            echo result
                         }
                         else{
                             echo 'Starting EC2 instance...'
                             def result = sh(
-                                script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.Instance_ID} --state ${params.STATE}",
+                                script: "python3 main.py --hostname ${env.HOSTNAME} ec2 --action manage --instance-id ${params.INSTANCE_ID} --state ${params.STATE}",
                                 returnStdout: true
                             ).trim()
+                            echo result
                         }
                     }
                 }
