@@ -3,9 +3,11 @@ from argparse import RawTextHelpFormatter
 from ec2 import ec2_handler
 from s3 import s3_handler
 from route53 import create_private_hosted_zone, manage_dns_records
+from consts import set_hostname
 
 parser = argparse.ArgumentParser(description='Creates AWS resources.', formatter_class=RawTextHelpFormatter)
-parser.add_argument('--hostname', type=str)
+# hostname - added for jenkins pipeline by the user logged in value
+parser.add_argument('--hostname', type=str, help='- creates a new running EC2 instance')
 
 # Subparsers for each resource type (ec2, s3, route53)
 subparsers = parser.add_subparsers(dest='resource', required=True)
@@ -97,6 +99,7 @@ manage_records_parser.add_argument('--record-value',
 
 # Parse the arguments
 args = parser.parse_args() 
+set_hostname(args.hostname) # for jenkins pipeline
 
 # Match the resource type and invoke appropriate handler function
 match args.resource:

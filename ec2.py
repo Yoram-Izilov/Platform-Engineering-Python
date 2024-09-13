@@ -1,6 +1,5 @@
 import boto3
-from consts import EC2_Settings, Tag
-
+from consts import EC2_Settings, Tag, get_hostname
 # Creates ec2 session using aws cli
 ec2_resource = boto3.resource('ec2', region_name='us-east-1')
 
@@ -52,11 +51,11 @@ def create_instances(os: str, instance_type: str):
                 'ResourceType': 'instance',
                 'Tags': [{
                             'Key': 'Name',
-                            'Value': EC2_Settings[os].name + ' ' + Tag.TAG_VALUE.value
+                            'Value': EC2_Settings[os].name + ' ' + get_hostname()
                         },
                         {
                             'Key': Tag.TAG_KEY.value,
-                            'Value': Tag.TAG_VALUE.value
+                            'Value': get_hostname()
                     } 
                 ]
             }
@@ -74,7 +73,7 @@ def count_running_instances ():
     filters = [
         {
             'Name': 'tag:{}'.format(Tag.TAG_KEY.value),
-            'Values': [Tag.TAG_VALUE.value]
+            'Values': [get_hostname()]
         },
         {
             'Name': 'instance-state-name',
@@ -93,7 +92,7 @@ def list_instances():
     filters = [
         {
             'Name': 'tag:{}'.format(Tag.TAG_KEY.value),
-            'Values': [Tag.TAG_VALUE.value]
+            'Values': [get_hostname()]
         }
     ]
     # Retrieve the instances
@@ -112,11 +111,11 @@ def list_instances():
 
     # Prints the instances
     if instance_list:
-        print("Instances with tag '{}: {}':".format(Tag.TAG_KEY.value, Tag.TAG_VALUE.value))
+        print("Instances with tag '{}: {}':".format(Tag.TAG_KEY.value, get_hostname()))
         for instance in instance_list:
             print(instance)
     else:
-        print(f"No instances found with tag {Tag.TAG_KEY.value}: {Tag.TAG_VALUE.value}.")
+        print(f"No instances found with tag {Tag.TAG_KEY.value}: {get_hostname()}.")
 
 def manage_instance(instance_id: str, state: str):
     """Manages (start, stop, or terminate) an EC2 instance by its ID.
@@ -128,7 +127,7 @@ def manage_instance(instance_id: str, state: str):
     filters = [
         {
             'Name': 'tag:{}'.format(Tag.TAG_KEY.value),
-            'Values': [Tag.TAG_VALUE.value]
+            'Values': [get_hostname()]
         }
     ]
     

@@ -1,8 +1,18 @@
 from enum import Enum
 import socket
 
+hostname = ''
+def set_hostname(args_hostname=None):
+    print(args_hostname)
+    global hostname 
+    if args_hostname != '':
+        hostname = args_hostname
+    else:
+        hostname = socket.gethostname()
+    print(hostname)
+
 def get_hostname():
-    return socket.gethostname()
+    return hostname
 
 # all the consts will be in this file (ami and such)
 class EC2_Settings(Enum):
