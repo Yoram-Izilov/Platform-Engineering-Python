@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'ZONE_ID', defaultValue: '', description: 'ID of the DNS zone to manage')
+        choice(name: 'ACTION', choices: ['create', 'upsert', 'delete'], description: 'create - create a new record || upsert - updating existing record || delete - delete a record')
+        string(name: 'RECORD_NAME', defaultValue: '', description: 'Record name to manage')
+        choice(name: 'RECORD_TYPE', choices: ['A', 'CNAME', 'TXT', 'MX'], description: 'Type of the DNS record to manage')  
+        string(name: 'RECORD_VALUE', defaultValue: '', description: 'ID of the DNS zone to manage') 
+    }
+    stages {
+        stage('Get User ID') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        env.HOSTNAME = env.BUILD_USER
+                    }
+                }
+            }
+        }
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
+            }
+        }
+        stage('Manage Route53 DNS') {
+            steps {
+                script {
+                    withAWS(credentials: 'YoramAws', region: 'us-east-1') {
+                        sh(script: "python3 main.py --hostname ${env.HOSTNAME} r53-manage-records --zone-id ${params.ZONE_ID} --action ${params.ACTION} --record-name ${params.RECORD_NAME} --record-type ${params.RECORD_TYPE} --record-value ${params.RECORD_VALUE}")
+                    }
+                }
+            }
+        }
+    }
+}

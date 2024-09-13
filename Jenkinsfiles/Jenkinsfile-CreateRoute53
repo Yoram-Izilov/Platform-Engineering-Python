@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'ZONE_NAME', defaultValue: '', description: 'Name of the DNS zone to create')
+ 
+    }
+    stages {
+        stage('Get User ID') {
+            steps {
+                script {
+                    wrap([$class: 'BuildUser']) {
+                        env.HOSTNAME = env.BUILD_USER
+                    }
+                }
+            }
+        }
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
+            }
+        }
+        stage('Create Route53 DNS') {
+            steps {
+                script {
+                    withAWS(credentials: 'YoramAws', region: 'us-east-1') {
+                        sh(script: "python3 main.py --hostname ${env.HOSTNAME} r53-create-zone --zone-name ${params.ZONE_NAME}")
+                    }
+                }
+            }
+        }
+    }
+}

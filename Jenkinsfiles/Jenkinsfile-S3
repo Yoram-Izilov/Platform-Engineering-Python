@@ -3,7 +3,7 @@ pipeline {
     parameters {
         choice(name: 'ACTION', choices: ['create', 'upload', 'list'], description: 'creates, uploads or lists buckets of the user')
         string(name: 'BUCKET_NAME', defaultValue: '', description: 'Name of the user S3 bucket')
-        string(name: 'FILE_PATH', defaultValue: '', description: 'File name to upload (valid only on uploading files) *note: has to be in /sharedFolder/ dir inside the container (no need for prefix /sharedFolder/)')
+        string(name: 'FILE_PATH', defaultValue: '', description: 'File name to upload (valid only on uploading files) *note: has to be in /sharedFolder/ dir (no need for prefix /sharedFolder/)')
         choice(name: 'ACCESS', choices: ['private', 'public'], description: 'Bucket access type - public or private (valid only on creation)')   
     }
     stages {
