@@ -4,22 +4,7 @@ pipeline {
         choice(name: 'INSTANCE_TYPE', choices: ['t3', 't2'], description: 'Select instance type (t3.nano or t2.micro)')
         choice(name: 'AMI_TYPE', choices: ['ubuntu', 'amazon'], description: 'Select AMI type (ubuntu or amazon-linux)')
     }
-    environment {
-        USER_ID = ''
-    }
     stages {
-        stage('Get User ID') {
-            steps {
-                script {
-                    wrap([$class: 'BuildUser']) {
-                        env.USER_ID = env.BUILD_USER_ID
-                        env.HOSTNAME = env.BUILD_USER_ID
-                    }
-                    echo "User ID: ${env.USER_ID}"
-                    echo "HOSTNAME: ${env.HOSTNAME}"
-                }
-            }
-        }
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/Yoram-Izilov/Platform-Engineering-Python'
@@ -30,7 +15,7 @@ pipeline {
                 script {
                     withAWS(credentials: 'YoramAws', region: 'us-east-1') {
                         def result = sh(
-                            script: "python3 main.py ec2 --action create --instance-type ${params.INSTANCE_TYPE} --os ${params.AMI_TYPE}",
+                            script: "python3 main.py ec2 --action create --instance-type ${params.INSTANCE_TYPE} --os ${params.AMI_TYPE} --hostname ${env.HOSTNAME}",
                             returnStdout: true
                         ).trim()
                         echo "S3 Buckets:"
